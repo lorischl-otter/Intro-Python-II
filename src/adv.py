@@ -5,21 +5,22 @@ from player import Player
 
 room = {
     'outside':  Room("Cave Entrance",
-                     "North of you, the cave mount beckons"),
+                     "North of you, the cave mount beckons.",
+                     ["Armor"]),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east."""),
+passages run north and east.""", ["Shield", "Sword"]),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm."""),
+the distance, but there is no way across the chasm.""", ["Locket"]),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air."""),
+to north. The smell of gold permeates the air.""", ["A Small Gold Coin"]),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
-chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south."""),
+chamber! Sadly, it has already been completely emptied by earlier adventurers.
+The only exit is to the south.""", ["Empty Chest", "Rusty Arrows"])
 }
 
 
@@ -52,13 +53,33 @@ player = Player(name="Link", location=room['outside'])
 #
 # If the user enters "q", quit the game.
 
-user_action = input("Welcome to The Game. Press any key to begin, or 'q' at any time to exit. ")
-
+user_action = input("""Welcome to The Game.
+Press any key to begin, or 'q' at any time to exit. """)
+# add in sanitization -- strip off whitespace, lowercase, split
+print(user_action)
 while not user_action == "q":
-    print("You are now at the", player.location)
+    print("You are now at the", player.location, "\n")
+    print("""Here's what's around:
+(you can pick up using 'get' + item name)\n""")
+    player.location.show_items()
     user_action = input("Which direction would you like to go? (n,e,s,w) ")
 
-    if player.location == room['outside']:
+    if user_action[:3] == 'get':
+        selected_item = user_action[4:].capitalize()
+        if selected_item in player.location.items:
+            player.pick_up_item(selected_item)
+        else:
+            print("""Sorry there's nothing by that name to pick up.
+Be sure you're typing 'get item' with the items name""")
+
+    elif user_action[:4] == 'drop':
+        selected_item = user_action[5:].capitalize()
+        if selected_item in player.items:
+            player.drop_item(selected_item)
+        else:
+            print("Sorry that's not an item you have to drop.")
+
+    elif player.location == room['outside']:
         if user_action == "n":
             player.location = room['foyer']
         else:
@@ -98,3 +119,13 @@ while not user_action == "q":
 # figure out text wrap function?
 # how to handle non direction inputs
 # change so q in the middle doesn't output the print statement?
+
+
+# other possible structre:
+# while true, then ask input
+# if command == q, quit
+# if in possible directions, check to see if we can go there
+# else... do something else
+
+# refactor into classes -- add method to player class
+# (try direction)
